@@ -146,7 +146,7 @@ Shipped records: Account, Opportunity (WhatId); Contact, Lead (WhoId); one Journ
 
 - Permission sets: **Journey Planner User** (Journey__c read/create/edit own; FLS on new Event fields; app and tab access) and **Journey Planner Admin** (adds View All on Journey__c, config panel).
 - Apex: `with sharing`, `WITH USER_MODE` queries / `Security.stripInaccessible` on DML; no SOQL in loops; bulk-safe triggers via a handler.
-- Check-in/out fields are written only through the Apex service; a validation rule blocks manual edits of check-in/out fields except by admins, and blocks deleting an Event once checked in.
+- Check-in/out fields are written only through the Apex service; an Event trigger guard (bypassed by the service, allowed for holders of the Journey_Planner_Admin custom permission) blocks manual edits of check-in/out fields except by admins, and blocks deleting an Event once checked in.
 
 ## 9. Components (indicative)
 
