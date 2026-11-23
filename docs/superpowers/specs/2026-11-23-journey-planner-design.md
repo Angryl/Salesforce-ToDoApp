@@ -1,6 +1,6 @@
 # Journey Planner — Design
 
-Status: Draft for review · Date: 2026-11-23 · Owner: Rudra Pratap Singh
+Status: Ready for approval · Date: 2026-11-23 · Owner: Rudra Pratap Singh
 
 ## 1. Intent
 
@@ -125,7 +125,7 @@ Shipped records: Account, Opportunity (WhatId); Contact, Lead (WhoId); one Journ
 - **Check in** (status Planned → Checked In): get location; stamp time, lat/long, accuracy, source; attach the Event to the user's Journey for today (get-or-create by Unique_Key__c).
 - **Check out** (Checked In → Completed): get location; stamp; compute Time_Spent_Minutes; compute Distance_From_Previous_Km (§7.4); recalculate the Journey totals.
 - If accuracy is worse than Max_Location_Accuracy_m__c, warn but allow.
-- If location is denied/unavailable: see §11 Q1.
+- **No location, no check-in/out (hard block).** If permission is denied, the device can't get a fix, or the call times out, the button does nothing except show how to enable location and a Retry option. No visit is ever stamped without coordinates, so every leg has real points.
 - If Require_Summary_On_Checkout__c is true for the journey's stamped version, check-out requires a Meeting Summary.
 - Only one visit may be Checked In at a time per user; checking in to another prompts to check out the first.
 
@@ -170,9 +170,10 @@ Shipped records: Account, Opportunity (WhatId); Contact, Lead (WhoId); one Journ
 - Meeting Summary is optional by default; a versioned setting can make it required at check-out.
 - Product working name: "Journey Planner".
 
-**Open — need Rudra:**
-- Q1. Behaviour when location is denied or unavailable.
-- Q2. Namespace for the unlocked package, and whose Dev Hub owns it.
+**Decided by Rudra:**
+- Location unavailable → hard block (§7.3).
+- Unlocked package **with a namespace**. Rudra's own free Developer Edition org is enabled as the **Dev Hub**; the namespace is registered in a **second, separate** Developer Edition org and linked to the Dev Hub. Neither org may belong to an employer or client. The namespace string is chosen by Rudra at registration (must be globally unique; cannot be changed later). The builder writes code namespace-agnostic and sets `namespace` in `sfdx-project.json` once registered.
+- Known limit: a Developer Edition Dev Hub is not a production org; if it is deactivated through inactivity, installed versions can't be upgraded. Log in to both orgs regularly.
 
 ## 12. Left to the builder
 - Exact LWC layout and styling within SLDS; timeline granularity (15 vs 30 min).
