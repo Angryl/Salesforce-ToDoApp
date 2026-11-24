@@ -1,0 +1,54 @@
+<template>
+  <lightning-card title={subject} icon-name="standard:event">
+    <div class="slds-var-p-horizontal_medium">
+      <template lwc:if={hasError}>
+        <div
+          class="slds-var-m-bottom_small slds-text-color_error"
+          role="alert"
+          data-id="error"
+        >
+          {errorMessage}
+        </div>
+      </template>
+
+      <template lwc:if={isPlanned}>
+        <lightning-button
+          variant="brand"
+          label="Check in"
+          disabled={busy}
+          onclick={handleCheckIn}
+        ></lightning-button>
+      </template>
+      <template lwc:elseif={isCheckedIn}>
+        <lightning-textarea
+          label="Meeting summary"
+          value={summaryValue}
+          onchange={handleSummaryChange}
+        ></lightning-textarea>
+        <lightning-button
+          class="slds-var-m-top_small"
+          variant="brand"
+          label="Check out"
+          disabled={busy}
+          onclick={handleCheckOut}
+        ></lightning-button>
+      </template>
+      <template lwc:elseif={isCompleted}>
+        <p><b>Time spent:</b> {timeSpent}</p>
+        <p><b>Distance from previous:</b> {legDistance}</p>
+        <p><b>Summary:</b> {completedSummary}</p>
+      </template>
+
+      <template lwc:if={hasError}>
+        <template lwc:if={lastAction}>
+          <lightning-button
+            class="slds-var-m-top_small"
+            label="Retry"
+            disabled={busy}
+            onclick={handleRetry}
+          ></lightning-button>
+        </template>
+      </template>
+    </div>
+  </lightning-card>
+</template>
