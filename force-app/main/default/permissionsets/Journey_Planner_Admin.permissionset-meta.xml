@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Journey Planner administration.</description>
+    <applicationVisibilities>
+        <application>Journey_Planner</application>
+        <visible>true</visible>
+    </applicationVisibilities>
     <customPermissions>
         <enabled>true</enabled>
         <name>Journey_Planner_Admin</name>
@@ -160,4 +164,16 @@
         <object>Journey__c</object>
         <viewAllRecords>true</viewAllRecords>
     </objectPermissions>
+    <tabSettings>
+        <tab>Journey_Planner</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Journey_Planner_Admin</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Journey__c</tab>
+        <visibility>Visible</visibility>
+    </tabSettings>
 </PermissionSet>

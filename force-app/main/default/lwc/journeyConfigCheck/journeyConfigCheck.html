@@ -1,0 +1,28 @@
+<template>
+  <lightning-card
+    title="Journey Planner configuration"
+    icon-name="standard:settings"
+  >
+    <div class="slds-var-p-horizontal_medium">
+      <template lwc:if={isOk}>
+        <div class="slds-box slds-theme_success" role="status" data-id="ok">
+          Configuration OK
+        </div>
+      </template>
+      <template lwc:if={hasIssues}>
+        <div class="slds-box slds-theme_warning" role="alert">
+          <ul class="slds-list_dotted">
+            <template for:each={issues} for:item="issue">
+              <li key={issue.key} data-id="issue">{issue.text}</li>
+            </template>
+          </ul>
+        </div>
+      </template>
+      <template lwc:if={hasError}>
+        <div class="slds-text-color_error" role="alert" data-id="error">
+          {errorMessage}
+        </div>
+      </template>
+    </div>
+  </lightning-card>
+</template>
