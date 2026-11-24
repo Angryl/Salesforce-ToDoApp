@@ -8,10 +8,7 @@ public with sharing class JourneyController {
   private static final String DEFAULT_ICON = 'standard:event';
   private static final Integer FALLBACK_VISIT_MINUTES = 60;
   private static final String ADMIN_PERMISSION = 'Journey_Planner_Admin';
-  private static final Set<String> USER_PERMISSION_SETS = new Set<String>{
-    'Journey_Planner_User',
-    'Journey_Planner_Admin'
-  };
+  private static final String USER_PERMISSION = 'Journey_Planner_User';
 
   public class DayView {
     @AuraEnabled
@@ -289,14 +286,10 @@ public with sharing class JourneyController {
   // ---- helpers ----
 
   private static void requirePlannerUser() {
-    Id userId = UserInfo.getUserId();
-    Integer assigned = [
-      SELECT COUNT()
-      FROM PermissionSetAssignment
-      WHERE AssigneeId = :userId AND PermissionSet.Name IN :USER_PERMISSION_SETS
-      WITH SYSTEM_MODE
-    ];
-    if (assigned == 0) {
+    if (
+      !FeatureManagement.checkPermission(USER_PERMISSION) &&
+      !FeatureManagement.checkPermission(ADMIN_PERMISSION)
+    ) {
       throw new JourneyException(
         'You need the Journey Planner User permission set to use Journey Planner. Ask your Salesforce admin.'
       );
@@ -312,7 +305,7 @@ public with sharing class JourneyController {
     }
   }
 
-  /** The user's timed events starting on the local date, plus all-day events on it. */
+  /** The user's timed events that span any part of the local date, plus all-day events covering it. */
   private static List<Event> eventsOn(Id userId, Date dayDate) {
     Datetime dayStart = Datetime.newInstance(
       dayDate,
@@ -341,10 +334,11 @@ public with sharing class JourneyController {
       WHERE
         OwnerId = :userId
         AND ((IsAllDayEvent = FALSE
-        AND StartDateTime >= :dayStart
-        AND StartDateTime < :dayEnd)
+        AND StartDateTime < :dayEnd
+        AND EndDateTime > :dayStart)
         OR (IsAllDayEvent = TRUE
-        AND ActivityDate = :dayDate))
+        AND ActivityDate <= :dayDate
+        AND EndDate >= :dayDate))
       WITH USER_MODE
       ORDER BY StartDateTime ASC, Id ASC
     ];

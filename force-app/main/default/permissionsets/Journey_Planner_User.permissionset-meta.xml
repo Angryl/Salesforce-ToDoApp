@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
     <description>Journey Planner access for field users.</description>
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>Journey_Planner_User</name>
+    </customPermissions>
     <fieldPermissions>
         <editable>false</editable>
         <field>Event.Check_In_Accuracy_m__c</field>

@@ -69,8 +69,13 @@ private class JourneyControllerTest {
     return u;
   }
 
+  /** User in the runner's time zone so at() and the controller agree on the day. */
+  private static User runnerUser() {
+    return JourneyTestData.createUser(UserInfo.getTimeZone().getID());
+  }
+
   private static User adminUser() {
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     System.runAs(new User(Id = UserInfo.getUserId())) {
       PermissionSet ps = [
         SELECT Id
@@ -134,7 +139,7 @@ private class JourneyControllerTest {
     Event allDay = timed(null, 'Holiday', at(0, 0), at(23, 59));
     allDay.IsAllDayEvent = true;
     Event self = timed(null, 'Self', at(10, 0), at(11, 0));
-    self.Id = '00U000000000001AAA';
+    self.Id = '00U000000000001EAA';
     List<Event> day = new List<Event>{ allDay, self };
     Assert.isTrue(
       OverlapChecker.overlaps(day, at(10, 0), at(11, 0), self.Id).isEmpty(),
@@ -152,7 +157,7 @@ private class JourneyControllerTest {
   @IsTest
   static void getDayReturnsVisitsSortedWithOverlapIds() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Account acc = new Account(Name = 'Acme Traders', OwnerId = u.Id);
     insert acc;
     Event late = timed(u.Id, 'Late', at(15, 0), at(16, 0));
@@ -195,7 +200,7 @@ private class JourneyControllerTest {
   @IsTest
   static void getDayIncludesAllDayEventsAndExistingJourney() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Event allDay = new Event(
       OwnerId = u.Id,
       Subject = 'Offsite',
@@ -234,12 +239,34 @@ private class JourneyControllerTest {
     Assert.isTrue(thrown, 'AuraHandledException expected');
   }
 
+  @IsTest
+  static void getDayShowsVisitCrossingMidnightOnBothDays() {
+    configure();
+    User u = runnerUser();
+    Event overnight = timed(u.Id, 'Overnight', at(23, 0), at(1, 0).addDays(1));
+    insert overnight;
+    JourneyController.DayView first;
+    JourneyController.DayView next;
+    System.runAs(u) {
+      first = JourneyController.getDay(DAY);
+      next = JourneyController.getDay(DAY.addDays(1));
+    }
+    Assert.areEqual(1, first.visits.size(), 'Overnight is on its start day');
+    Assert.areEqual('Overnight', first.visits[0].subject);
+    Assert.areEqual(
+      1,
+      next.visits.size(),
+      'Overnight carries into the next day'
+    );
+    Assert.areEqual('Overnight', next.visits[0].subject);
+  }
+
   // ---- createVisit ----
 
   @IsTest
   static void createVisitOnLeadSetsWhoId() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Lead lead = new Lead(LastName = 'Rao', Company = 'Rao Co', OwnerId = u.Id);
     insert lead;
     JourneyController.CreateResult result;
@@ -265,7 +292,7 @@ private class JourneyControllerTest {
   @IsTest
   static void createVisitOnAccountSetsWhatIdAndReportsOverlap() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Account acc = new Account(Name = 'Acme', OwnerId = u.Id);
     insert acc;
     Event existing = timed(u.Id, 'Existing', at(10, 0), at(11, 0));
@@ -289,7 +316,7 @@ private class JourneyControllerTest {
   @IsTest
   static void createVisitOnUnconfiguredObjectThrowsReadableMessage() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Contact c = new Contact(LastName = 'Nobody', OwnerId = u.Id);
     insert c;
     Boolean thrown = false;
@@ -311,7 +338,7 @@ private class JourneyControllerTest {
   @IsTest
   static void createVisitRejectsEndNotAfterStart() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Account acc = new Account(Name = 'Acme', OwnerId = u.Id);
     insert acc;
     Boolean thrown = false;
@@ -331,7 +358,7 @@ private class JourneyControllerTest {
   @IsTest
   static void rescheduleMovesPlannedVisit() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Event visit = timed(u.Id, 'Move me', at(10, 0), at(11, 0));
     Event other = timed(u.Id, 'Other', at(14, 0), at(15, 0));
     insert new List<Event>{ visit, other };
@@ -357,7 +384,7 @@ private class JourneyControllerTest {
   @IsTest
   static void rescheduleRejectsVisitThatIsNotPlanned() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Event visit = timed(u.Id, 'Started', at(10, 0), at(11, 0));
     visit.Visit_Status__c = 'Checked In';
     JourneyTestData.insertBypassingGuard(new List<Event>{ visit });
@@ -382,7 +409,7 @@ private class JourneyControllerTest {
   @IsTest
   static void checkInWithoutLocationSurfacesReadableMessage() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Event visit = JourneyTestData.plannedEvent(u.Id, 'No GPS');
     insert visit;
     Boolean thrown = false;
@@ -403,7 +430,7 @@ private class JourneyControllerTest {
   @IsTest
   static void checkInAndOutDelegateToService() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Event visit = JourneyTestData.plannedEvent(u.Id, 'Real visit');
     insert visit;
     JourneyService.CheckResult inResult;
@@ -430,7 +457,7 @@ private class JourneyControllerTest {
   @IsTest
   static void startAndEndDayReturnJourney() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Journey__c started;
     Journey__c ended;
     System.runAs(u) {
@@ -446,7 +473,7 @@ private class JourneyControllerTest {
   @IsTest
   static void getConfigHealthWithoutAdminPermissionThrows() {
     configure();
-    User u = JourneyTestData.createUser();
+    User u = runnerUser();
     Boolean thrown = false;
     System.runAs(u) {
       try {
