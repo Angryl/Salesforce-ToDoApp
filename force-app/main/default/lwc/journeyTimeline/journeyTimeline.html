@@ -1,0 +1,71 @@
+<template>
+  <template lwc:if={hasAllDay}>
+    <div class="allday slds-var-m-bottom_small" data-id="allday">
+      <template for:each={allDayVisits} for:item="item">
+        <c-journey-visit-card
+          key={item.id}
+          visit={item.visit}
+          onvisitchange={handleVisitChange}
+        ></c-journey-visit-card>
+      </template>
+    </div>
+  </template>
+  <div class="grid" style={gridStyle}>
+    <template for:each={slots} for:item="slot">
+      <button
+        key={slot.key}
+        type="button"
+        class="slot"
+        data-slot
+        data-start={slot.start}
+        onclick={handleSlotClick}
+      >
+        <span class="slot-label">{slot.label}</span>
+      </button>
+    </template>
+    <div class="cards">
+      <template for:each={timedVisits} for:item="item">
+        <div
+          key={item.id}
+          class="card-wrap"
+          style={item.style}
+          data-card={item.id}
+        >
+          <div class="card-tools">
+            <template lwc:if={item.overlaps}>
+              <lightning-icon
+                data-id="overlap-marker"
+                icon-name="utility:warning"
+                alternative-text="Overlaps another visit"
+                size="x-small"
+                variant="warning"
+              ></lightning-icon>
+            </template>
+            <template lwc:if={item.canMove}>
+              <lightning-button
+                variant="base"
+                label="Move"
+                data-id={item.id}
+                onclick={handleMove}
+              ></lightning-button>
+            </template>
+          </div>
+          <c-journey-visit-card
+            visit={item.visit}
+            onvisitchange={handleVisitChange}
+          ></c-journey-visit-card>
+        </div>
+      </template>
+    </div>
+  </div>
+  <template lwc:if={hasMoving}>
+    <c-journey-event-form
+      mode="edit"
+      event-id={moving.id}
+      start={moving.startTime}
+      end={moving.endTime}
+      onsave={handleMoveSave}
+      oncancel={handleMoveCancel}
+    ></c-journey-event-form>
+  </template>
+</template>

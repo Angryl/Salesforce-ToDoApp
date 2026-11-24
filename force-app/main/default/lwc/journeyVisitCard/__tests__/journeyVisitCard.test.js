@@ -5,7 +5,11 @@ import checkIn from "@salesforce/apex/JourneyController.checkIn";
 import checkOut from "@salesforce/apex/JourneyController.checkOut";
 import { getRecord, notifyRecordUpdateAvailable } from "lightning/uiRecordApi";
 
-jest.mock("c/locationUtil", () => ({ getCurrentLocation: jest.fn() }));
+jest.mock("c/locationUtil", () => ({
+  getCurrentLocation: jest.fn(),
+  locationErrorMessage:
+    jest.requireActual("c/locationUtil").locationErrorMessage
+}));
 jest.mock(
   "@salesforce/apex/JourneyController.checkIn",
   () => ({ default: jest.fn() }),

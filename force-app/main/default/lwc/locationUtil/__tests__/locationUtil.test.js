@@ -1,5 +1,5 @@
 import { getLocationService } from "lightning/mobileCapabilities";
-import { getCurrentLocation } from "c/locationUtil";
+import { getCurrentLocation, locationErrorMessage } from "c/locationUtil";
 
 const originalGeolocation = Object.getOwnPropertyDescriptor(
   navigator,
@@ -149,5 +149,30 @@ describe("c-location-util getCurrentLocation", () => {
     await pending;
     expect(caught).toBeInstanceOf(Error);
     expect(caught.code).toBe("TIMEOUT");
+  });
+});
+
+describe("c-location-util locationErrorMessage", () => {
+  it.each([
+    [
+      "DENIED",
+      "Location permission is off. Allow location for the Salesforce app in your phone settings, then tap Retry."
+    ],
+    [
+      "UNAVAILABLE",
+      "Couldn't get your location. Move to an open area and tap Retry."
+    ],
+    ["TIMEOUT", "Getting your location took too long. Tap Retry."]
+  ])("maps %s to its message", (code, message) => {
+    expect(locationErrorMessage(code)).toBe(message);
+  });
+
+  it("falls back to a generic message", () => {
+    expect(locationErrorMessage("WHAT")).toBe(
+      "Something went wrong. Please try again."
+    );
+    expect(locationErrorMessage(undefined)).toBe(
+      "Something went wrong. Please try again."
+    );
   });
 });

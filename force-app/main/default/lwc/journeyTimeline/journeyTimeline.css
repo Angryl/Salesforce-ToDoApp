@@ -1,0 +1,47 @@
+.grid {
+  position: relative;
+}
+
+.slot {
+  display: block;
+  width: 100%;
+  height: 48px;
+  box-sizing: border-box;
+  padding: 0 0.5rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--slds-g-color-border-base-1, #e5e5e5);
+  cursor: pointer;
+}
+
+.slot-label {
+  font-size: 0.75rem;
+  color: var(--slds-g-color-neutral-base-50, #747474);
+}
+
+.cards {
+  position: absolute;
+  top: 0;
+  left: 4rem;
+  right: 0.5rem;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.card-wrap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  overflow: auto;
+  box-sizing: border-box;
+  background: var(--slds-g-color-surface-container-1, #fff);
+  pointer-events: auto;
+}
+
+.card-tools {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}

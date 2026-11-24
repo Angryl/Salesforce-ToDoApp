@@ -90,3 +90,17 @@ export function getCurrentLocation({ timeoutMs = 15000 } = {}) {
     locationError("UNAVAILABLE", "Location is not available on this device.")
   );
 }
+
+const LOCATION_MESSAGES = {
+  DENIED:
+    "Location permission is off. Allow location for the Salesforce app in your phone settings, then tap Retry.",
+  UNAVAILABLE:
+    "Couldn't get your location. Move to an open area and tap Retry.",
+  TIMEOUT: "Getting your location took too long. Tap Retry."
+};
+const GENERIC_ERROR = "Something went wrong. Please try again.";
+
+/** User-facing message for a getCurrentLocation rejection code. */
+export function locationErrorMessage(code) {
+  return LOCATION_MESSAGES[code] || GENERIC_ERROR;
+}

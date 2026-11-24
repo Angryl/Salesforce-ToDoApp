@@ -1,0 +1,84 @@
+<template>
+  <lightning-card title={title} icon-name="standard:event">
+    <div slot="actions">
+      <lightning-button
+        label="Previous"
+        onclick={handlePrevious}
+      ></lightning-button>
+      <lightning-button
+        class="slds-var-m-left_x-small"
+        label="Today"
+        onclick={handleToday}
+      ></lightning-button>
+      <lightning-button
+        class="slds-var-m-left_x-small"
+        label="Next"
+        onclick={handleNext}
+      ></lightning-button>
+    </div>
+    <div class="slds-var-p-horizontal_medium">
+      <p class="slds-var-m-bottom_small" data-id="summary">{summary}</p>
+      <template lwc:if={isToday}>
+        <div class="slds-var-m-bottom_small">
+          <lightning-button
+            label="Start day"
+            disabled={busy}
+            onclick={handleStartDay}
+          ></lightning-button>
+          <lightning-button
+            class="slds-var-m-left_x-small"
+            label="End day"
+            disabled={busy}
+            onclick={handleEndDay}
+          ></lightning-button>
+        </div>
+      </template>
+      <template lwc:if={hasError}>
+        <div
+          class="slds-var-m-bottom_small slds-text-color_error"
+          role="alert"
+          data-id="error"
+        >
+          {errorMessage}
+        </div>
+      </template>
+      <template lwc:if={hasOverlaps}>
+        <div
+          class="slds-notify slds-notify_alert slds-alert_warning slds-var-m-bottom_small"
+          role="alert"
+          data-id="overlap"
+        >
+          <span>Overlaps with: {overlapNames}</span>
+          <lightning-button
+            class="slds-var-m-left_small"
+            label="Keep both"
+            onclick={handleKeepBoth}
+          ></lightning-button>
+          <lightning-button
+            class="slds-var-m-left_x-small"
+            label="Change time"
+            onclick={handleChangeTime}
+          ></lightning-button>
+        </div>
+      </template>
+      <c-journey-timeline
+        date={dateValue}
+        visits={day.visits}
+        onslotselect={handleSlotSelect}
+        onvisitmove={handleVisitMove}
+        onvisitchange={handleVisitChange}
+      ></c-journey-timeline>
+    </div>
+  </lightning-card>
+  <template lwc:if={hasForm}>
+    <c-journey-event-form
+      mode={form.mode}
+      event-id={form.eventId}
+      object-options={day.objectOptions}
+      start={form.start}
+      end={form.end}
+      onsave={handleFormSave}
+      oncancel={handleFormCancel}
+    ></c-journey-event-form>
+  </template>
+</template>

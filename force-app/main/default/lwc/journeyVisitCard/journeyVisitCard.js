@@ -1,7 +1,7 @@
 import { LightningElement, api, wire } from "lwc";
 import { getRecord, notifyRecordUpdateAvailable } from "lightning/uiRecordApi";
 import { ShowToastEvent } from "lightning/platformShowToastEvent";
-import { getCurrentLocation } from "c/locationUtil";
+import { getCurrentLocation, locationErrorMessage } from "c/locationUtil";
 import checkInApex from "@salesforce/apex/JourneyController.checkIn";
 import checkOutApex from "@salesforce/apex/JourneyController.checkOut";
 import SUBJECT from "@salesforce/schema/Event.Subject";
@@ -10,13 +10,6 @@ import SUMMARY from "@salesforce/schema/Event.Meeting_Summary__c";
 import MINUTES from "@salesforce/schema/Event.Time_Spent_Minutes__c";
 import LEG_KM from "@salesforce/schema/Event.Distance_From_Previous_Km__c";
 
-const LOCATION_MESSAGES = {
-  DENIED:
-    "Location permission is off. Allow location for the Salesforce app in your phone settings, then tap Retry.",
-  UNAVAILABLE:
-    "Couldn't get your location. Move to an open area and tap Retry.",
-  TIMEOUT: "Getting your location took too long. Tap Retry."
-};
 const GENERIC_ERROR = "Something went wrong. Please try again.";
 
 export default class JourneyVisitCard extends LightningElement {
@@ -134,7 +127,7 @@ export default class JourneyVisitCard extends LightningElement {
       try {
         loc = await getCurrentLocation();
       } catch (e) {
-        this.errorMessage = LOCATION_MESSAGES[e && e.code] || GENERIC_ERROR;
+        this.errorMessage = locationErrorMessage(e && e.code);
         return;
       }
       let result;
