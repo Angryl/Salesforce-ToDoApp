@@ -31,8 +31,6 @@
 
 .card-wrap {
   position: absolute;
-  left: 0;
-  right: 0;
   overflow: auto;
   box-sizing: border-box;
   background: var(--slds-g-color-surface-container-1, #fff);

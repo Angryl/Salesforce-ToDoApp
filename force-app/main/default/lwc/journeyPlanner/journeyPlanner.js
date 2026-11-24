@@ -56,14 +56,17 @@ export default class JourneyPlanner extends LightningElement {
 
   get summary() {
     const journey = this.day.journey;
-    const count = (journey && journey.Visit_Count__c) || 0;
+    const completed = (journey && journey.Visit_Count__c) || 0;
+    const planned = (this.day.visits || []).filter(
+      (v) => !v.allDay && (v.status || "Planned") === "Planned"
+    ).length;
     const km = Number((journey && journey.Total_Km__c) || 0).toFixed(2);
     const total = Math.round((journey && journey.Total_Visit_Minutes__c) || 0);
-    return `${count} visits · ${km} km · ${Math.floor(total / 60)}h ${total % 60}m`;
+    return `${planned} planned · ${completed} completed · ${km} km · ${Math.floor(total / 60)}h ${total % 60}m`;
   }
 
   get hasError() {
-    return !!this.errorMessage;
+    return !!this.errorMessage && !this.form;
   }
 
   get hasOverlaps() {

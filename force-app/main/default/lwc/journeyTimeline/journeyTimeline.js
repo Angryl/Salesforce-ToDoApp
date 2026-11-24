@@ -62,7 +62,7 @@ export default class JourneyTimeline extends LightningElement {
   }
 
   get timedVisits() {
-    return (this.visits || [])
+    const items = (this.visits || [])
       .filter((v) => !v.allDay && v.startTime && v.endTime)
       .map((v) => {
         const startMin = Math.max(
@@ -70,16 +70,55 @@ export default class JourneyTimeline extends LightningElement {
           Math.min(LAST_MINUTE, this.minutesFromMidnight(v.startTime))
         );
         const endMin = Math.max(
-          startMin,
+          startMin + SLOT_MINUTES,
           Math.min(LAST_MINUTE, this.minutesFromMidnight(v.endTime))
         );
-        const top = (startMin - FIRST_MINUTE) * PX_PER_MINUTE;
-        const height = Math.max(ROW_PX, (endMin - startMin) * PX_PER_MINUTE);
-        return {
-          ...this.decorate(v),
-          style: `top:${top}px;height:${height}px`
-        };
+        return { ...this.decorate(v), startMin, endMin };
       });
+    this.assignColumns(items);
+    return items.map((item) => {
+      const top = (item.startMin - FIRST_MINUTE) * PX_PER_MINUTE;
+      const height = (item.endMin - item.startMin) * PX_PER_MINUTE;
+      const width = 100 / item.columns;
+      return {
+        ...item,
+        style: `top:${top}px;height:${height}px;left:${item.column * width}%;width:${width}%`
+      };
+    });
+  }
+
+  // Side-by-side layout: items that overlap (transitively) share a cluster;
+  // each takes the first free column, and the cluster splits its width evenly.
+  assignColumns(items) {
+    const sorted = [...items].sort(
+      (a, b) => a.startMin - b.startMin || a.endMin - b.endMin
+    );
+    let cluster = [];
+    let columnEnds = [];
+    let clusterEnd = -1;
+    const close = () => {
+      cluster.forEach((i) => {
+        i.columns = columnEnds.length;
+      });
+      cluster = [];
+      columnEnds = [];
+    };
+    sorted.forEach((item) => {
+      if (cluster.length && item.startMin >= clusterEnd) {
+        close();
+      }
+      let col = columnEnds.findIndex((end) => end <= item.startMin);
+      if (col === -1) {
+        col = columnEnds.length;
+      }
+      columnEnds[col] = item.endMin;
+      item.column = col;
+      clusterEnd = cluster.length
+        ? Math.max(clusterEnd, item.endMin)
+        : item.endMin;
+      cluster.push(item);
+    });
+    close();
   }
 
   get hasMoving() {

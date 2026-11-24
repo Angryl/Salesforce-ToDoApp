@@ -159,4 +159,15 @@ describe("c-journey-event-form", () => {
     buttonByLabel(el, "Cancel").click();
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
+
+  it("renders a server error inside the modal", async () => {
+    const el = create({
+      mode: "edit",
+      start: START,
+      end: END,
+      serverError: "No access"
+    });
+    await flush();
+    expect(errorText(el)).toContain("No access");
+  });
 });

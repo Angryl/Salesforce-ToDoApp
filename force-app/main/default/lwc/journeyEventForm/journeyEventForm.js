@@ -6,6 +6,7 @@ export default class JourneyEventForm extends LightningElement {
   @api objectOptions = [];
   @api start;
   @api end;
+  @api serverError;
 
   subject = "";
   apiName;
@@ -38,8 +39,12 @@ export default class JourneyEventForm extends LightningElement {
     return !!this.apiName;
   }
 
+  get shownError() {
+    return this.errorMessage || this.serverError;
+  }
+
   get hasError() {
-    return !!this.errorMessage;
+    return !!this.shownError;
   }
 
   handleSubject(event) {

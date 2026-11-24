@@ -118,6 +118,12 @@ describe("c-journey-planner", () => {
   it("shows visits, km (2 dp) and Xh Ym from the journey", async () => {
     getDay.mockResolvedValue(
       day({
+        visits: [
+          { id: "1", status: "Planned" },
+          { id: "2", status: null, allDay: true },
+          { id: "3", status: "Completed" },
+          { id: "4", status: "Checked In" }
+        ],
         journey: {
           Id: "a001",
           Total_Km__c: 12.3456,
@@ -129,7 +135,7 @@ describe("c-journey-planner", () => {
     const el = create();
     await flushAll();
     expect(q(el, '[data-id="summary"]').textContent).toBe(
-      "3 visits · 12.35 km · 2h 15m"
+      "1 planned · 3 completed · 12.35 km · 2h 15m"
     );
   });
 
@@ -137,7 +143,7 @@ describe("c-journey-planner", () => {
     const el = create();
     await flushAll();
     expect(q(el, '[data-id="summary"]').textContent).toBe(
-      "0 visits · 0.00 km · 0h 0m"
+      "0 planned · 0 completed · 0.00 km · 0h 0m"
     );
   });
 
@@ -264,8 +270,12 @@ describe("c-journey-planner", () => {
     const el = create();
     await flushAll();
     await openAndSave(el);
-    expect(q(el, '[data-id="error"]').textContent).toContain("No access");
-    expect(q(el, "c-journey-event-form")).toBeTruthy();
+    const form = q(el, "c-journey-event-form");
+    expect(form).toBeTruthy();
+    expect(
+      form.shadowRoot.querySelector('[data-id="error"]').textContent
+    ).toContain("No access");
+    expect(q(el, '[data-id="error"]')).toBeNull();
   });
 
   it("reloads when a visit card reports a change", async () => {

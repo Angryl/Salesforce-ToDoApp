@@ -154,4 +154,24 @@ describe("c-journey-timeline", () => {
       );
     expect(onChange).toHaveBeenCalledTimes(1);
   });
+
+  it("places overlapping cards side by side and keeps others full width", async () => {
+    const el = create({
+      date: "2026-11-24",
+      visits: [
+        visit({ id: "A", startTime: at(9), endTime: at(10, 30) }),
+        visit({ id: "B", startTime: at(10), endTime: at(11) }),
+        visit({ id: "C", startTime: at(13), endTime: at(14) })
+      ]
+    });
+    await flush();
+    const style = (id) =>
+      el.shadowRoot.querySelector(`[data-card='${id}']`).style;
+    expect(style("A").left).toBe("0%");
+    expect(style("A").width).toBe("50%");
+    expect(style("B").left).toBe("50%");
+    expect(style("B").width).toBe("50%");
+    expect(style("C").left).toBe("0%");
+    expect(style("C").width).toBe("100%");
+  });
 });
