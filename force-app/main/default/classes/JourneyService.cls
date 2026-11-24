@@ -10,6 +10,8 @@ public with sharing class JourneyService {
   public static final String STATUS_PLANNED = 'Planned';
   public static final String STATUS_CHECKED_IN = 'Checked In';
   public static final String STATUS_COMPLETED = 'Completed';
+  /** Used when the setting's Road_Factor__c is blank (spec: road factor default 1.30). */
+  public static final Decimal DEFAULT_ROAD_FACTOR = 1.30;
 
   private static final String LOCATION_REQUIRED = 'Location is required to check in. Enable location and retry.';
   private static final Set<String> LOCATION_SOURCES = new Set<String>{
@@ -63,7 +65,7 @@ public with sharing class JourneyService {
         Journey_Date__c = journeyDate,
         Unique_Key__c = key,
         Applied_Setting__c = setting.DeveloperName,
-        Applied_Road_Factor__c = setting.Road_Factor__c,
+        Applied_Road_Factor__c = setting.Road_Factor__c ?? DEFAULT_ROAD_FACTOR,
         Applied_Require_Summary__c = setting.Require_Summary_On_Checkout__c ==
           true
       )
@@ -264,9 +266,7 @@ public with sharing class JourneyService {
     WriteSet totals = new WriteSet();
     for (Journey__c j : journeys) {
       List<Event> visits = visitsByJourney.get(j.Id);
-      Decimal factor = j.Applied_Road_Factor__c == null
-        ? 1.0
-        : j.Applied_Road_Factor__c;
+      Decimal factor = j.Applied_Road_Factor__c ?? DEFAULT_ROAD_FACTOR;
       Decimal totalKm = 0;
       Decimal minutes = 0;
       for (Integer i = 0; i < visits.size(); i++) {

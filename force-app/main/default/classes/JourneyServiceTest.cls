@@ -290,6 +290,35 @@ private class JourneyServiceTest {
   }
 
   @IsTest
+  static void blankRoadFactor_defaultsTo130() {
+    JourneyTestData.useSettings(
+      new List<Journey_Setting__mdt>{
+        JourneyTestData.setting(
+          'V1',
+          Date.newInstance(2000, 1, 1),
+          null,
+          null,
+          false
+        )
+      }
+    );
+    JourneyTestData.useFixedCalculator();
+    User u = JourneyTestData.createUser();
+    List<Event> events = JourneyTestData.insertPlannedEvents(u.Id, 2);
+
+    System.runAs(u) {
+      Date day = Date.today();
+      visitAt(events[0].Id, day, 9);
+      JourneyService.CheckResult secondVisit = visitAt(events[1].Id, day, 11);
+
+      Journey__c j = journey(secondVisit.journeyId);
+      Assert.areEqual(1.30, j.Applied_Road_Factor__c.setScale(2));
+      assertKm(13.00, secondVisit.legKm, 'leg uses default factor 1.30');
+      assertKm(13.00, j.Total_Km__c, 'total uses default factor 1.30');
+    }
+  }
+
+  @IsTest
   static void requireSummary_enforcedFromStampedVersion() {
     Date epoch = Date.newInstance(2000, 1, 1);
     JourneyTestData.useSettings(
