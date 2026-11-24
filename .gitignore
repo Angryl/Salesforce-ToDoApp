@@ -1,0 +1,17 @@
+# Controller scratch area, never committed
+.superpowers/
+
+# Salesforce cache
+.sf/
+.sfdx/
+.localdevserver/
+
+# Node / test output
+node_modules/
+coverage/
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

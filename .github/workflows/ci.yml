@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run prettier:verify
+      - run: npm run test:unit
+      - name: Install Salesforce CLI and Code Analyzer
+        run: |
+          npm install -g @salesforce/cli
+          sf plugins install code-analyzer
+      - run: npm run scan
+
+  org:
+    runs-on: ubuntu-latest
+    needs: static
+    env:
+      DEVHUB_SFDX_AUTH_URL: ${{ secrets.DEVHUB_SFDX_AUTH_URL }}
+    steps:
+      - name: Check Dev Hub secret
+        id: gate
+        run: |
+          if [ -n "$DEVHUB_SFDX_AUTH_URL" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "DEVHUB_SFDX_AUTH_URL not set; skipping scratch org tests."
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.enabled == 'true'
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          node-version: 22
+      - name: Install Salesforce CLI
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm install -g @salesforce/cli
+      - name: Authorize Dev Hub
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          printf '%s' "$DEVHUB_SFDX_AUTH_URL" > "$RUNNER_TEMP/devhub.url"
+          sf org login sfdx-url --sfdx-url-file "$RUNNER_TEMP/devhub.url" --alias devhub --set-default-dev-hub
+          rm -f "$RUNNER_TEMP/devhub.url"
+      - name: Create scratch org
+        if: steps.gate.outputs.enabled == 'true'
+        run: sf org create scratch --definition-file config/project-scratch-def.json --alias ci-scratch --set-default --duration-days 1 --wait 20
+      - name: Deploy source
+        if: steps.gate.outputs.enabled == 'true'
+        run: sf project deploy start --target-org ci-scratch --wait 20
+      - name: Run Apex tests
+        if: steps.gate.outputs.enabled == 'true'
+        run: sf apex run test --target-org ci-scratch --code-coverage --result-format human --wait 20
+      - name: Delete scratch org
+        if: always() && steps.gate.outputs.enabled == 'true'
+        run: sf org delete scratch --target-org ci-scratch --no-prompt
