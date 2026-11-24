@@ -185,8 +185,12 @@ private class EventTriggerHandlerTest {
   static void bulkUpdateOf200PlannedEventsPasses() {
     User u = JourneyTestData.createUser();
     List<Event> events = JourneyTestData.insertPlannedEvents(u.Id, 200);
+    Map<Id, Event> before = new Map<Id, Event>(
+      [SELECT Id, StartDateTime, EndDateTime FROM Event WHERE Id IN :events]
+    );
+    Assert.areEqual(200, before.size());
     List<Event> moves = new List<Event>();
-    for (Event e : events) {
+    for (Event e : before.values()) {
       moves.add(
         new Event(
           Id = e.Id,
@@ -198,15 +202,16 @@ private class EventTriggerHandlerTest {
     System.runAs(u) {
       update moves;
     }
-    Assert.areEqual(
-      200,
-      [
-        SELECT COUNT()
-        FROM Event
-        WHERE
-          Id IN :new Map<Id, Event>(events).keySet()
-          AND StartDateTime > :at(0)
-      ]
-    );
+    List<Event> after = [
+      SELECT Id, StartDateTime, EndDateTime
+      FROM Event
+      WHERE Id IN :before.keySet()
+    ];
+    Assert.areEqual(200, after.size());
+    for (Event e : after) {
+      Event original = before.get(e.Id);
+      Assert.areEqual(original.StartDateTime.addHours(1), e.StartDateTime);
+      Assert.areEqual(original.EndDateTime.addHours(1), e.EndDateTime);
+    }
   }
 }
