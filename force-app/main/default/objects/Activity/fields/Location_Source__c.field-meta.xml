@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Location_Source__c</fullName>
+    <description>Where the location came from.</description>
+    <externalId>false</externalId>
+    <label>Location Source</label>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Mobile GPS</fullName>
+                <default>false</default>
+                <label>Mobile GPS</label>
+            </value>
+            <value>
+                <fullName>Browser</fullName>
+                <default>false</default>
+                <label>Browser</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

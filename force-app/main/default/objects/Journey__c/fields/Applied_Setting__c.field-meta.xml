@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Applied_Setting__c</fullName>
+    <description
+  >DeveloperName of the config version stamped on this journey.</description>
+    <externalId>false</externalId>
+    <label>Applied Setting</label>
+    <length>80</length>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+</CustomField>

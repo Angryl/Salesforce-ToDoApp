@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Meeting_Summary__c</fullName>
+    <description>Post-visit notes.</description>
+    <externalId>false</externalId>
+    <label>Meeting Summary</label>
+    <length>32000</length>
+    <visibleLines>5</visibleLines>
+    <trackTrending>false</trackTrending>
+    <type>LongTextArea</type>
+</CustomField>

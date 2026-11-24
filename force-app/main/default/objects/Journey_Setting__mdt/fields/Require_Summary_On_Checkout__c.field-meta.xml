@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Require_Summary_On_Checkout__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Require a meeting summary at check-out.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Require Summary On Checkout</label>
+    <type>Checkbox</type>
+</CustomField>

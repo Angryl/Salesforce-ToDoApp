@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Start_Latitude__c</fullName>
+    <description>Optional start-day latitude.</description>
+    <externalId>false</externalId>
+    <label>Start Latitude</label>
+    <precision>10</precision>
+    <scale>7</scale>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+</CustomField>
